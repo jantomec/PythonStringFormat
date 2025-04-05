@@ -7,6 +7,12 @@
   "engines": {
     "vscode": "^1.98.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jantomec/PythonStringFormat.git"
+  },
+  "homepage": "https://github.com/jantomec/RunCellsWithTag#readme",
+  "license": "MIT",
   "categories": [
     "Formatters"
   ],
