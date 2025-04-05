@@ -5,8 +5,10 @@
 #pylint: disable=missing-function-docstring
 #pylint: disable=no-else-return
 
+import sys
 import ast
-from typing import List, Dict, Iterator, Optional, Union
+from typing import List, Dict, Iterator, Optional
+import argparse
 
 
 NEWLINE_CHARACTER = "__NEWLINE_WCXUk5LBafrNeLP_CHARACTER__"
@@ -36,7 +38,7 @@ def get_string_delimiter(string: str, offset: int = 0) -> str:
             return string[offset]
 
 def node_contains_cursor(node: ast.AST, cursor_line: int, cursor_col: int) -> bool:
-    cursor_offset = cursor_col - 1
+    cursor_offset = cursor_col
 
     if node_is_multiline(node):
         if cursor_line == node.lineno and cursor_offset > node.col_offset:
@@ -327,6 +329,36 @@ def converter(src: str, cursor_line: int, cursor_col: int, conversion: int) -> s
                 return replace_node(src=src, original_node=string_format, new_node=fstring)
 
     else:
-        raise ValueError("Unexpected conversion value: {}".format(conversion))
+        raise ValueError(f"Unexpected conversion value: {conversion}")
 
     return src
+
+
+
+def main():
+
+    parser = argparse.ArgumentParser(description="Convert between f-string and str.format")
+    parser.add_argument("line", type=int, help="Cursor line number (1-based)")
+    parser.add_argument("col", type=int, help="Cursor column number (1-based)")
+    parser.add_argument("conversion", type=int, choices=[1, 2, 3], help="Conversion type: 1 (f-string to str.format, no kwargs), 2 (f-string to str.format, with kwargs), 3 (str.format to f-string)")
+
+    args = parser.parse_args()
+
+    buffer = sys.stdin.buffer.read()
+    src = buffer.decode('utf-8')
+
+    result = converter(
+        src=src,
+        cursor_line=args.line,
+        cursor_col=args.col,
+        conversion=args.conversion
+    )
+
+    sys.stdout.buffer.write(result.encode('utf-8'))
+    sys.stdout.flush()
+
+    return 0
+
+
+if __name__ == "__main__":
+    main()
