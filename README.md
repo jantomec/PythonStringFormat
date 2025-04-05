@@ -1,71 +1,40 @@
-# pythonstringformat README
+# PythonStringFormat
 
-This is the README for your extension "pythonstringformat". After writing up a brief description, we recommend including the following sections.
+**PythonStringFormat** is an extension for automated conversion between str.format and f-strings in Python.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+This extension provides the following commands, available via Command Palette (`Cmd`+`Shift`+`P` or `Ctrl`+`Shift`+`P`):
+- *Convert f-string to .format(args)*: Convert a Python f-string to str.format with args.
+- *Convert f-string to .format(keywords)*: Convert a Python f-string to str.format with keywords (generic keywords are inserted).
+- *Convert .format() to f-string*: Convert a str.format (can contain both args and kwargs) to f-string.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+This extension requires [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension.
+
+## Installation
+
+You can install the **PythonStringFormat** extension directly from the Visual Studio Code Marketplace or by searching for it in the Extensions view (`Ctrl + Shift + X` or `Cmd + Shift + X`).
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+Currently, this extension has no settings.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Please report any issues on the official [github repo](https://github.com/jantomec/PythonStringFormat).
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.1.0
 
-### 1.0.0
+Initial release of **PythonStringFormat**.
 
-Initial release of ...
+## License
 
-### 1.0.1
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Fixed issue #.
+## Feedback
 
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+If you have any questions or feedback, feel free to reach out on [GitHub](https://github.com/jantomec/PythonStringFormat).
