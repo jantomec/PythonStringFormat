@@ -2,7 +2,7 @@
   "name": "pythonstringformat",
   "displayName": "PythonStringFormat",
   "description": "Convert between formatted strings in Python.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "jantomec",
   "engines": {
     "vscode": "^1.98.0"
