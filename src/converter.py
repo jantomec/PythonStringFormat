@@ -10,59 +10,11 @@ import ast
 from typing import List, Dict, Iterator, Optional
 import argparse
 
+from error import PythonStringConverterRecursionError
+from config import NEWLINE_CHARACTER
+from string_finder import *
+from utilities import *
 
-NEWLINE_CHARACTER = "__NEWLINE_WCXUk5LBafrNeLP_CHARACTER__"
-
-class PythonStringConverterRecursionError(Exception):
-    def __init__(self, message=""):
-        super().__init__(message)
-        self.message = message
-
-    def __str__(self):
-        return f"PythonStringConverterRecursionError: {self.message}"
-
-
-def node_is_multiline(node: ast.AST) -> bool:
-    return hasattr(node, 'end_lineno') and node.end_lineno > node.lineno
-
-def get_string_delimiter(string: str, offset: int = 0) -> str:
-    if string[offset] == 'f':
-        if all_characters_same(string[offset+1:offset+4]):
-            return string[offset+1:offset+4]
-        else:
-            return string[offset+1]
-    else:
-        if all_characters_same(string[offset:offset+3]):
-            return string[offset:offset+3]
-        else:
-            return string[offset]
-
-def node_contains_cursor(node: ast.AST, cursor_line: int, cursor_col: int) -> bool:
-    cursor_offset = cursor_col
-
-    if node_is_multiline(node):
-        if cursor_line == node.lineno and cursor_offset > node.col_offset:
-            return True
-
-        if cursor_line == node.end_lineno and cursor_offset < node.end_col_offset:
-            return True
-
-        if node.lineno < cursor_line < node.end_lineno:
-            return True
-
-        return False
-
-    else:
-        if cursor_line == node.lineno and node.col_offset < cursor_offset < node.end_col_offset:
-            return True
-
-        return False
-
-def is_string_format(node: ast.AST) -> bool:
-    return isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "format" and isinstance(node.func.value, ast.Constant) and isinstance(node.func.value.value, str)
-
-def is_fstring(node: ast.AST) -> bool:
-    return isinstance(node, ast.JoinedStr)
 
 def parse_fstring_subnode_to_string_format(recursion_depth: int, node: ast.JoinedStr, n_keys: int, args: Optional[List[ast.AST]] = None, keywords: Optional[List[ast.keyword]] = None, as_kwargs: bool = True) -> str:  # pylint: disable=too-many-arguments, too-many-positional-arguments
     if recursion_depth >= 2:
@@ -221,21 +173,6 @@ def parse_string_format_to_fstring(string: str, args: Iterator[List[ast.AST]], k
     else:
         return ast.JoinedStr(values=values)
 
-def replace_character_in_node(node: ast.AST, old_character: str, new_character: str) -> ast.AST:
-    if isinstance(node, ast.Constant):
-        if isinstance(node.value, str):
-            node.value = node.value.replace(old_character, new_character)
-
-    for _, value in ast.iter_fields(node):
-        if isinstance(value, ast.AST):
-            replace_character_in_node(value, old_character, new_character)
-        elif isinstance(value, list):
-            for item in value:
-                if isinstance(item, ast.AST):
-                    replace_character_in_node(item, old_character, new_character)
-
-    return node
-
 def convert_string_format_to_fstring(node: ast.Call) -> ast.JoinedStr:
     string = node.func.value.value
     args = iter(node.args)
@@ -258,8 +195,7 @@ def fstring_node_to_string(node: ast.JoinedStr, original_delimiter: str) -> str:
     new_delimiter = get_string_delimiter(string=string)
     return 'f' + original_delimiter + string[len(new_delimiter)+1:-len(new_delimiter)] + original_delimiter
 
-def all_characters_same(s: str) -> bool:
-    return len(set(s)) == 1
+
 
 def replace_node(src: str, original_node: ast.AST, new_node: ast.AST) -> str:
     lines = src.splitlines()
@@ -282,8 +218,6 @@ def replace_node(src: str, original_node: ast.AST, new_node: ast.AST) -> str:
         new_lines[0] = before_replacement + new_lines[0]
         new_lines[-1] = new_lines[-1] + after_replacement
 
-        # for i, line_number in enumerate(range(original_node.lineno, original_node.end_lineno+1)):
-        #     lines[line_number-1] = new_lines[i]
         lines = lines[:original_node.lineno-1] + new_lines + lines[original_node.end_lineno:]
 
     else:
