@@ -12,8 +12,8 @@ import argparse
 
 from error import PythonStringConverterRecursionError
 from config import NEWLINE_CHARACTER
-from string_finder import *
 from utilities import *
+from string_finder import node_contains_cursor
 
 
 def parse_fstring_subnode_to_string_format(recursion_depth: int, node: ast.JoinedStr, n_keys: int, args: Optional[List[ast.AST]] = None, keywords: Optional[List[ast.keyword]] = None, as_kwargs: bool = True) -> str:  # pylint: disable=too-many-arguments, too-many-positional-arguments
@@ -195,7 +195,11 @@ def fstring_node_to_string(node: ast.JoinedStr, original_delimiter: str) -> str:
     new_delimiter = get_string_delimiter(string=string)
     return 'f' + original_delimiter + string[len(new_delimiter)+1:-len(new_delimiter)] + original_delimiter
 
-
+def node_to_source(node: ast.AST, original_delimiter: str) -> str:
+    if isinstance(node, ast.JoinedStr):
+        return fstring_node_to_string(node=node, original_delimiter=original_delimiter)
+    else:
+        return string_format_node_to_string(node=node, original_delimiter=original_delimiter)
 
 def replace_node(src: str, original_node: ast.AST, new_node: ast.AST) -> str:
     lines = src.splitlines()
@@ -238,55 +242,71 @@ def replace_node(src: str, original_node: ast.AST, new_node: ast.AST) -> str:
 
     return '\n'.join(lines)
 
-def converter(src: str, cursor_line: int, cursor_col: int, conversion: int) -> str:
+def converter(src: str, conversion_target: str) -> str:
     tree = ast.parse(src, mode='exec')
 
-    if conversion == 1:
-        for node in ast.walk(tree):
-            if is_fstring(node) and node_contains_cursor(node, cursor_line, cursor_col):
-                fstring = node
-                string_format = convert_fstring_to_string_format(fstring, as_kwargs=False)
-                return replace_node(src=src, original_node=fstring, new_node=string_format)
+    new_node = None
 
-    elif conversion == 2:
+    if conversion_target == "str.format(args)":
         for node in ast.walk(tree):
-            if is_fstring(node) and node_contains_cursor(node, cursor_line, cursor_col):
-                fstring = node
-                string_format = convert_fstring_to_string_format(node)
-                return replace_node(src=src, original_node=fstring, new_node=string_format)
+            if is_fstring(node):
+                new_node = convert_fstring_to_string_format(node, as_kwargs=False)
+                break
+            elif is_string_format(node):
+                fstring = convert_string_format_to_fstring(node)
+                new_node = convert_fstring_to_string_format(fstring, as_kwargs=False)
+                break
 
-    elif conversion == 3:
+    elif conversion_target == "str.format(keywords)":
         for node in ast.walk(tree):
-            if is_string_format(node) and node_contains_cursor(node, cursor_line, cursor_col):
-                string_format = node
-                fstring = convert_string_format_to_fstring(string_format)
-                return replace_node(src=src, original_node=string_format, new_node=fstring)
+            if is_fstring(node):
+                new_node = convert_fstring_to_string_format(node)
+                break
+            elif is_string_format(node):
+                fstring = convert_string_format_to_fstring(node)
+                new_node = convert_fstring_to_string_format(fstring)
+                break
+
+    elif conversion_target == "f-string":
+        for node in ast.walk(tree):
+            if is_string_format(node):
+                new_node = convert_string_format_to_fstring(node)
+                break
+            elif is_string(node):
+                new_node = ast.JoinedStr(values=[ast.Constant(value=node.value)])
+                break
 
     else:
-        raise ValueError(f"Unexpected conversion value: {conversion}")
+        raise ValueError(f"Unexpected conversion value: {conversion_target}")
 
-    return src
+    if new_node is None:
+        return src
 
+    string_offset = node.col_offset
+    if is_fstring(node):
+        string_offset += 1
 
+    original_delimiter = get_string_delimiter(string=src, offset=string_offset)
+    return node_to_source(node=new_node, original_delimiter=original_delimiter)
 
 def main():
-
     parser = argparse.ArgumentParser(description="Convert between f-string and str.format")
-    parser.add_argument("line", type=int, help="Cursor line number (1-based)")
-    parser.add_argument("col", type=int, help="Cursor column number (1-based)")
-    parser.add_argument("conversion", type=int, choices=[1, 2, 3], help="Conversion type: 1 (f-string to str.format, no kwargs), 2 (f-string to str.format, with kwargs), 3 (str.format to f-string)")
+    parser.add_argument("conversion_target", type=str, choices=["f-string", "str.format(args)", "str.format(keywords)"], help="Conversion target")
 
     args = parser.parse_args()
 
     buffer = sys.stdin.buffer.read()
     src = buffer.decode('utf-8')
 
-    result = converter(
-        src=src,
-        cursor_line=args.line,
-        cursor_col=args.col,
-        conversion=args.conversion
-    )
+    try:
+        result = converter(
+            src=src,
+            conversion_target=args.conversion_target
+        )
+    except Exception as error:
+        sys.stderr.write(error.__str__() + "\n")
+        sys.stderr.flush()
+        return 1
 
     sys.stdout.buffer.write(result.encode('utf-8'))
     sys.stdout.flush()
@@ -295,4 +315,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    STATUS = main()
+    sys.exit(STATUS)

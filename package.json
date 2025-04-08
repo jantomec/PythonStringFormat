@@ -21,18 +21,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "pythonstringformat.convertFstringToFormat",
-        "title": "Convert f-string to .format(args)",
-        "category": "PythonStringFormat"
-      },
-      {
-        "command": "pythonstringformat.convertFstringToKeywordsFormat",
-        "title": "Convert f-string to .format(keywords)",
-        "category": "PythonStringFormat"
-      },
-      {
-        "command": "pythonstringformat.convertFormatToFstring",
-        "title": "Convert .format() to f-string",
+        "command": "pythonstringformat.convertFormatString",
+        "title": "Convert format string",
         "category": "PythonStringFormat"
       }
     ]

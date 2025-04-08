@@ -16,50 +16,108 @@ async function getPythonInterpreter(): Promise<string> {
 	return pythonExecutable;
 }
 
-function convert(conversion_type: Number, context: vscode.ExtensionContext) {
-	// The code you place here will be executed every time your command is executed
+function suggestConversionType(input: string): string[] {
+	if (input === "f-string") {
+		return [
+			"str.format(args)",
+			"str.format(keywords)"
+		];
+	} else if (input === "str.format(args)") {
+		return [
+			"f-string",
+			"str.format(keywords)"
+		];
+	} else if (input === "str.format(keywords)") {
+		return [
+			"f-string",
+			"str.format(args)"
+		];
+	} else if (input === "str.format(args, keywords)") {
+		return [
+			"f-string",
+			"str.format(args)",
+			"str.format(keywords)"
+		];
+	} else if (input === "str") {
+		return ["f-string"];
+	} else {
+		return [];
+	}
+}
+
+function convert(context: vscode.ExtensionContext) {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) { return; }
 
 	const cursor = editor.selection.active;
 
 	getPythonInterpreter().then((pythonPath) => {
-		const scriptPath = context.asAbsolutePath('src/converter.py');
+		const stringFinderScriptPath = context.asAbsolutePath('src/string_finder.py');
 		const text = editor.document.getText();
 		const buffer = Buffer.from(text, 'utf-8');
 
-		const lineno = cursor.line + 1;
-		const colno = cursor.character + 1;
+		const lineno = cursor.line;
+		const col_offset = cursor.character;
 
 		const result = spawnSync(
 			pythonPath,
 			[
-				scriptPath,
+				stringFinderScriptPath,
 				lineno.toString(),
-				colno.toString(),
-				conversion_type.toString()
+				col_offset.toString()
 			],
-			{
-				input: buffer
-			}
+			{input: buffer}
 		);
 
 		if (result.status !== 0) {
 			console.error(`Error: ${result.stderr}`);
-			vscode.window.showErrorMessage(`Error: ${result.stderr}`);
+			vscode.window.showErrorMessage(`No string was found at the cursor position.`);
 			return;
 		}
 
-		const new_text = result.stdout.toString('utf-8');
+		const string = JSON.parse(result.stdout.toString('utf-8'));
 
-		if (new_text === text) {
-			vscode.window.showInformationMessage("No formatted string was found at the cursor position.");
+		const start = new vscode.Position(string.start.line, string.start.character);
+		const end = new vscode.Position(string.end.line, string.end.character);
+
+		const selection = new vscode.Selection(start, end);
+		editor.selection = selection;
+		editor.revealRange(selection);
+
+		const conversion_options = suggestConversionType(string.type);
+		if (conversion_options.length === 0) {
+			console.error(`No conversion options available for type: ${string.type}`);
 			return;
 		}
+		vscode.window.showQuickPick(conversion_options, {
+			placeHolder: 'Select conversion ...'
+		}).then((selected) => {
+			if (!selected) {
+				return;
+			}
 
-		const fullRange = new vscode.Range(0, 0, editor.document.lineCount, 0);
-		editor.edit(editBuilder => {
-			editBuilder.replace(fullRange, new_text);
+			const converterScriptPath = context.asAbsolutePath('src/converter.py');
+			const selectedText = editor.document.getText(selection);
+			const buffer = Buffer.from(selectedText, 'utf-8');
+			const result = spawnSync(pythonPath,
+				[
+					converterScriptPath,
+					selected
+				],
+				{input: buffer}
+			);
+
+			if (result.status !== 0) {
+				console.error(`Error: ${result.stderr}`);
+				vscode.window.showErrorMessage(`Error: Could not convert string.`);
+				return;
+			}
+
+			const new_text = result.stdout.toString('utf-8');
+
+			editor.edit(editBuilder => {
+				editBuilder.replace(editor.selection, new_text);
+			});
 		});
 	});
 }
@@ -76,20 +134,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('pythonstringformat.convertFstringToFormat', () => {
-			convert(1, context);
-		})
-	);
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand('pythonstringformat.convertFstringToKeywordsFormat', () => {
-			convert(2, context);
-		})
-	);
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand('pythonstringformat.convertFormatToFstring', () => {
-			convert(3, context);
+		vscode.commands.registerCommand('pythonstringformat.convertFormatString', () => {
+			convert(context);
 		})
 	);
 
