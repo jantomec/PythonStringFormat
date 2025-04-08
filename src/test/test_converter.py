@@ -23,7 +23,7 @@ name = "world"
 print("Hello, {{}}, {n!r:>10}! sin{{{a}}} = {:.{}}".format(math.sin(a), 3, n=name, a=a))
 print("Hello, {{}}, {!r:>10}! sin{{{}}} = {:.{}}".format(name, a, math.sin(a), 3))"""
 
-    actual = converter(src, cursor_line=5, cursor_col=16, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=16, conversion_target=1)
 
     assert expected == actual
 
@@ -40,7 +40,7 @@ name = "world"
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")"""
 
-    actual = converter(src, cursor_line=4, cursor_col=16, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=16, conversion_target=3)
 
     assert expected == actual
 
@@ -57,7 +57,7 @@ name = "world"
 print("Hello, {{}}, {n!r:>10}! sin{{{a}}} = {:.{}}".format(math.sin(a), 3, n=name, a=a))
 print("Hello, {{}}, {!r:>10}! sin{{{}}} = {:.{}}".format(name, a, math.sin(a), 3))"""
 
-    actual = converter(src, cursor_line=5, cursor_col=8, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=8, conversion_target=1)
 
     assert expected == actual
 
@@ -74,7 +74,7 @@ name = "world"
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")"""
 
-    actual = converter(src, cursor_line=4, cursor_col=8, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=8, conversion_target=3)
 
     assert expected == actual
 
@@ -87,7 +87,7 @@ print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")
 """
     expected = src
 
-    actual = converter(src, cursor_line=5, cursor_col=7, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=7, conversion_target=1)
 
     assert expected == actual
 
@@ -100,7 +100,7 @@ print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")
 """
     expected = src
 
-    actual = converter(src, cursor_line=4, cursor_col=7, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=7, conversion_target=3)
 
     assert expected == actual
 
@@ -117,7 +117,7 @@ name = "world"
 print("Hello, {{}}, {n!r:>10}! sin{{{a}}} = {:.{}}".format(math.sin(a), 3, n=name, a=a))
 print("Hello, {{}}, {!r:>10}! sin{{{}}} = {:.{}}".format(name, a, math.sin(a), 3))"""
 
-    actual = converter(src, cursor_line=5, cursor_col=67, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=67, conversion_target=1)
 
     assert expected == actual
 
@@ -134,7 +134,7 @@ name = "world"
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")"""
 
-    actual = converter(src, cursor_line=4, cursor_col=87, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=87, conversion_target=3)
 
     assert expected == actual
 
@@ -147,7 +147,7 @@ print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")
 """
     expected = src
 
-    actual = converter(src, cursor_line=5, cursor_col=68, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=68, conversion_target=1)
 
     assert expected == actual
 
@@ -160,7 +160,7 @@ print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")
 """
     expected = src
 
-    actual = converter(src, cursor_line=4, cursor_col=88, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=88, conversion_target=3)
 
     assert expected == actual
 
@@ -177,7 +177,7 @@ name = "world"
 print("Hello, {{}}, {n!r:>10}! sin{{{a}}} = {:.{}}".format(math.sin(a), 3, n=name, a=a))
 print('Hello, {{}}, {!r:>10}! sin{{{}}} = {:.{}}'.format(name, a, math.sin(a), 3))"""
 
-    actual = converter(src, cursor_line=5, cursor_col=67, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=67, conversion_target=1)
 
     assert expected == actual
 
@@ -194,7 +194,7 @@ name = "world"
 print(f'Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}')
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")"""
 
-    actual = converter(src, cursor_line=4, cursor_col=87, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=87, conversion_target=3)
 
     assert expected == actual
 
@@ -211,7 +211,7 @@ name = "world"
 print("Hello, {{}}, {n!r:>10}! sin{{{a}}} = {:.{}}".format(math.sin(a), 3, n=name, a=a))
 print('''Hello, {{}}, {!r:>10}! sin{{{}}} = {:.{}}'''.format(name, a, math.sin(a), 3))"""
 
-    actual = converter(src, cursor_line=5, cursor_col=67, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=67, conversion_target=1)
 
     assert expected == actual
 
@@ -228,7 +228,7 @@ name = "world"
 print(f'''Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}''')
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")"""
 
-    actual = converter(src, cursor_line=4, cursor_col=87, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=87, conversion_target=3)
 
     assert expected == actual
 
@@ -249,7 +249,7 @@ print('''Hello,
 {{}},
 {!r:>10}! sin{{{}}} = {:.{}}'''.format(name, a, math.sin(a), 3))"""
 
-    actual = converter(src, cursor_line=5, cursor_col=13, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=13, conversion_target=1)
 
     assert expected == actual
 
@@ -270,7 +270,7 @@ print(f'''Hello,
 {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}''')
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")"""
 
-    actual = converter(src, cursor_line=4, cursor_col=13, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=13, conversion_target=3)
 
     assert expected == actual
 
@@ -287,7 +287,7 @@ name = "world"
 print("Hello, {{}}, {n!r:>10}! sin{{{a}}} = {:.{}}".format(math.sin(a), 3, n=name, a=a))
 print("""Hello, {{}}, {!r:>10}! sin{{{}}} = {:.{}}""".format(name, a, math.sin(a), 3))'''
 
-    actual = converter(src, cursor_line=5, cursor_col=67, conversion=1)
+    actual = converter(src, cursor_line=5, cursor_col=67, conversion_target=1)
 
     assert expected == actual
 
@@ -304,7 +304,7 @@ name = "world"
 print(f"""Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}""")
 print(f"Hello, {{}}, {name!r:>10}! sin{{{a}}} = {math.sin(a):.{3}}")'''
 
-    actual = converter(src, cursor_line=4, cursor_col=13, conversion=3)
+    actual = converter(src, cursor_line=4, cursor_col=13, conversion_target=3)
 
     assert expected == actual
 
@@ -312,7 +312,7 @@ def test_braces_inside_fstring() -> bool:
     src = '''f"Hello, {'world{}'}"'''
     expected = '''"Hello, {}".format('world{}')'''
 
-    actual = converter(src, cursor_line=1, cursor_col=5, conversion=1)
+    actual = converter(src, cursor_line=1, cursor_col=5, conversion_target=1)
 
     assert expected == actual
 
@@ -320,6 +320,6 @@ def test_braces_inside_string_format() -> bool:
     src = '''"Hello, {}".format('world{}')'''
     expected = '''f"Hello, {'world{}'}"'''
 
-    actual = converter(src, cursor_line=1, cursor_col=5, conversion=3)
+    actual = converter(src, cursor_line=1, cursor_col=5, conversion_target=3)
 
     assert expected == actual

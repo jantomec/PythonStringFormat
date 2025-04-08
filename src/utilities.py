@@ -24,11 +24,31 @@ def get_string_delimiter(string: str, offset: int = 0) -> str:
         else:
             return string[offset]
 
+def is_string(node: ast.AST) -> bool:
+    return isinstance(node, ast.Constant) and isinstance(node.value, str)
+
 def is_string_format(node: ast.AST) -> bool:
     return isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "format" and isinstance(node.func.value, ast.Constant) and isinstance(node.func.value.value, str)
 
 def is_fstring(node: ast.AST) -> bool:
     return isinstance(node, ast.JoinedStr)
+
+def get_string_type(node: ast.AST) -> str:
+    if is_fstring(node):
+        return "f-string"
+
+    elif is_string_format(node):
+        if len(node.keywords) == 0:
+            return "str.format(args)"
+        elif len(node.args) == 0:
+            return "str.format(keywords)"
+        else:
+            return "str.format(args, keywords)"
+
+    elif is_string(node):
+        return "str"
+    else:
+        return "unknown"
 
 def replace_character_in_node(node: ast.AST, old_character: str, new_character: str) -> ast.AST:
     if isinstance(node, ast.Constant):
