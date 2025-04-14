@@ -25,12 +25,6 @@ Currently, this extension has no settings.
 
 Please report any issues on the official [github repo](https://github.com/jantomec/PythonStringFormat).
 
-## Release Notes
-
-### 0.1.0
-
-Initial release of **PythonStringFormat**.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -2,8 +2,14 @@
 
 All notable changes to the "pythonstringformat" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## 0.2.1
 
-## [Unreleased]
+Bugfix in the packaging.
 
-- Initial release
+## 0.2.0
+
+Update to interactive command.
+
+## 0.1.0
+
+Initial release of **PythonStringFormat**.
